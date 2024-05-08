@@ -1,2 +1,4 @@
+from pvsnapshot.property import Environments
+
 if __name__ == "__main__":
-    print("Hello, World!")
+    print(Environments.CLIENT_ID)
