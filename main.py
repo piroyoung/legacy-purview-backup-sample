@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 
 from azure.identity import ClientSecretCredential
 from azure.purview.datamap import DataMapClient
@@ -27,5 +28,5 @@ if __name__ == "__main__":
     remote: RemoteRepository = RestRemoteRepository(c=client)
     local: SnapshotRepository = LocalSnapshotRepository()
 
-    service: DumpService = DumpService(remote=remote, local=local, key="test")
+    service: DumpService = DumpService(remote=remote, local=local, key=datetime.now().strftime("%Y%m%d%H%M%S"))
     service.run()
