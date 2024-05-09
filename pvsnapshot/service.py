@@ -1,16 +1,18 @@
 import logging
+from dataclasses import dataclass
 from datetime import datetime
 
 from pvsnapshot.model import DataCatalog
-from pvsnapshot.repository import LocalRepository
 from pvsnapshot.repository import RemoteRepository
+from pvsnapshot.repository import SnapshotRepository
 
 _logger: logging.Logger = logging.getLogger(__name__)
 
 
+@dataclass(frozen=True)
 class DumpService:
     remote: RemoteRepository
-    local: LocalRepository
+    local: SnapshotRepository
     key: str
 
     def run(self) -> None:
@@ -22,9 +24,10 @@ class DumpService:
         _logger.info(f"Data dumped to local with key: {self.key}")
 
 
+@dataclass(frozen=True)
 class RestoreService:
     remote: RemoteRepository
-    local: LocalRepository
+    local: SnapshotRepository
     key: str
 
     def run(self, key: str) -> None:
