@@ -4,23 +4,25 @@ from typing import List
 from pvsnapshot.model import DataCatalog
 
 
-class DataCatalogRepository(metaclass=ABCMeta):
+class RemoteRepository(metaclass=ABCMeta):
     @abstractmethod
-    def get_remote(self) -> DataCatalog:
+    def get(self) -> DataCatalog:
         pass
 
     @abstractmethod
-    def put_remote(self, data: DataCatalog):
+    def put(self, data: DataCatalog):
+        pass
+
+
+class LocalRepository(metaclass=ABCMeta):
+    @abstractmethod
+    def get(self, key: str) -> DataCatalog:
         pass
 
     @abstractmethod
-    def get_local(self, key: str) -> DataCatalog:
+    def put(self, data: DataCatalog):
         pass
 
     @abstractmethod
-    def put_local(self, data: DataCatalog):
-        pass
-
-    @abstractmethod
-    def list_local(self) -> List[str]:
+    def list(self) -> List[str]:
         pass
