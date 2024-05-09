@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "legacy-purview-backup-sample"
+version = "0.1.0"
+description = ""
+authors = ["Hiroki Mizukami <hmizukami@microsoft.com>"]
+license = ""
+readme = "README.md"
+packages = [
+    { include = "pvsnapshot", from = "." }
+]
+
+
+
+[tool.poetry.dependencies]
+python = "^3.12"
+azure-identity = "^1.16.0"
+azure-purview-scanning = "^1.0.0b2"
+azure-purview-administration = "^1.0.0b1"
+azure-purview-catalog = "^1.0.0b4"
+azure-purview-account = "^1.0.0b1"
+azure-core = "^1.30.1"
+pytest = "^8.2.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
