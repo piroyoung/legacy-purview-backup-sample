@@ -1,7 +1,10 @@
+import logging
 from abc import ABCMeta, abstractmethod
 from typing import List
 
 from pvsnapshot.model import DataCatalog
+
+_logger: logging.Logger = logging.getLogger(__name__)
 
 
 class RemoteRepository(metaclass=ABCMeta):
