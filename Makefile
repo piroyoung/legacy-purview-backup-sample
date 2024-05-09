@@ -1,4 +1,6 @@
 DOCKER_IMAGE = "pvsnapshot:local"
+HOST_VOLUME = "/Users/$(USER)/local/purview/snapshots"
+
 
 .PHONY: build
 build:
@@ -13,6 +15,7 @@ run: build
 		-e TENANT_ID=$(TENANT_ID) \
 		-e PURVIEW_ENDPOINT=$(PURVIEW_ENDPOINT) \
 		--name pvsnapshot \
+		-v $(HOST_VOLUME):/local/pvsnapshot/snapshots/ \
 		$(DOCKER_IMAGE)
 
 test: build
