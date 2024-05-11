@@ -8,7 +8,15 @@ from typing import List
 
 from azure.purview.datamap import DataMapClient
 from azure.purview.datamap.models import QueryResult
+
 from pvsnapshot.model import DataCatalog
+
+__all__ = [
+    "RemoteRepository",
+    "SnapshotRepository",
+    "RestRemoteRepository",
+    "LocalSnapshotRepository"
+]
 
 _logger: logging.Logger = logging.getLogger(__name__)
 
@@ -57,20 +65,23 @@ class RestRemoteRepository(RemoteRepository):
 
 @dataclass(frozen=True)
 class LocalSnapshotRepository(SnapshotRepository):
+    dir: str
+
     def get(self, key: str) -> DataCatalog:
-        with open(f"snapshots/{key}.json", "r") as f:
+        with open(f"{self.dir}/{key}.json", "r") as f:
             d: str = f.read()
             return DataCatalog(**json.loads(d))
 
     def put(self, data: DataCatalog):
-        with open(f"snapshots/{data.key}.json", "w") as f:
+        with open(f"{self.dir}/{data.key}.json", "w") as f:
             d: str = json.dumps(
                 {
                     "key": data.key,
                     "created_at": str(data.created_at),
                     "data": data.data
                 },
-                indent=4
+                indent=4,
+                ensure_ascii=False
             )
             f.write(d)
 

@@ -1,10 +1,17 @@
 import logging
 from dataclasses import dataclass
 from datetime import datetime
+from typing import List
 
-from pvsnapshot.model import DataCatalog
+from pvsnapshot.model import DataCatalog, classify_with_object_type
 from pvsnapshot.repository import RemoteRepository
 from pvsnapshot.repository import SnapshotRepository
+
+__all__ = [
+    "DumpService",
+    "RestoreService",
+    "ClassifyDumpService",
+]
 
 _logger: logging.Logger = logging.getLogger(__name__)
 
@@ -44,3 +51,19 @@ class RestoreService:
         data: DataCatalog = self.local.get(key)
         self.remote.put(data)
         _logger.info(f"Data restored from local with key: {key}")
+
+
+@dataclass(frozen=True)
+class ClassifyDumpService:
+    local: SnapshotRepository
+    key: str
+
+    def run(self) -> None:
+        _logger.info("Classifying data from local")
+        data: DataCatalog = self.local.get(self.key)
+
+        classified_data: List[DataCatalog] = classify_with_object_type(data)
+
+        for classified in classified_data:
+            self.local.put(classified)
+            _logger.info(f"Data classified with key: {classified.key}")
