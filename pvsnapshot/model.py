@@ -3,6 +3,8 @@ from datetime import datetime
 from typing import Any
 from typing import Dict
 
+__all__ = ["DataCatalog"]
+
 
 @dataclass
 class DataCatalog:

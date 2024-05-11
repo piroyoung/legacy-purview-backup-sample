@@ -6,6 +6,11 @@ from pvsnapshot.model import DataCatalog
 from pvsnapshot.repository import RemoteRepository
 from pvsnapshot.repository import SnapshotRepository
 
+__all__ = [
+    "DumpService",
+    "RestoreService"
+]
+
 _logger: logging.Logger = logging.getLogger(__name__)
 
 

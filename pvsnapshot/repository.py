@@ -8,7 +8,15 @@ from typing import List
 
 from azure.purview.datamap import DataMapClient
 from azure.purview.datamap.models import QueryResult
+
 from pvsnapshot.model import DataCatalog
+
+__all__ = [
+    "RemoteRepository",
+    "SnapshotRepository",
+    "RestRemoteRepository",
+    "LocalSnapshotRepository"
+]
 
 _logger: logging.Logger = logging.getLogger(__name__)
 
