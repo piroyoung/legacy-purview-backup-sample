@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, List, Set, Optional
+from typing import Any, List, Set
 from typing import Dict
 
 __all__ = [
@@ -10,23 +10,23 @@ __all__ = [
 
 @dataclass
 class Table:
-    id: Optional[str]
-    collectionId: Optional[str]
-    name: Optional[str]
-    qualifiedName: Optional[str]
-    displayText: Optional[str]
-    contact: Optional[List["Contact"]]
-    term: Optional[List["Term"]]
-    classification: Optional[List[str]]
-    endorsement: Optional[List[str]]
-    isIndexed: Optional[bool]
-    objectType: Optional[str]
-    entityType: Optional[str]
-    assetType: Optional[List[str]]
-    updateBy: Optional[str]
-    updateTime: Optional[int]
-    createBy: Optional[str]
-    createTime: Optional[int]
+    id: str = None
+    collectionId: str = None
+    name: str = None
+    qualifiedName: str = None
+    displayText: str = None
+    contact: List["Contact"] = None
+    term: List["Term"] = None
+    classification: List[str] = None
+    endorsement: List[str] = None
+    isIndexed: bool = None
+    objectType: str = None
+    entityType: str = None
+    assetType: List[str] = None
+    updateBy: str = None
+    updateTime: int = None
+    createBy: str = None
+    createTime: int = None
 
 
 @dataclass
