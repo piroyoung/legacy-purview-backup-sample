@@ -1,5 +1,5 @@
 # Purview Snapshot
-
+https://learn.microsoft.com/en-us/purview/tutorial-using-python-sdk
 
 ```shell
 export DOCKER_IMAGE=pvsnapshot:local
