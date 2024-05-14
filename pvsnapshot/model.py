@@ -1,6 +1,8 @@
 from dataclasses import dataclass
+from typing import Generator
 
 from azure.purview.datamap.models import AtlasEntitiesWithExtInfo
+from azure.purview.datamap.models import AtlasEntityWithExtInfo
 
 __all__ = [
     "DataCatalog",
@@ -13,6 +15,10 @@ class DataCatalog:
     created_at: int
     body: AtlasEntitiesWithExtInfo
 
+    @property
+    def bodies(self) -> Generator[AtlasEntityWithExtInfo]:
+        for entity in self.body.entities:
+            yield AtlasEntityWithExtInfo(entity=entity, referred_entities=self.body.referred_entities)
 
 
 def _remove_nulls(value):
