@@ -1,82 +1,35 @@
-import json
 from dataclasses import dataclass
-from typing import Any, List, Set
+from typing import Any, List
 from typing import Dict
+
+from azure.purview.datamap.models import AtlasEntityWithExtInfo
 
 __all__ = [
     "DataCatalog",
-    "classify_with_object_type"
 ]
-
-
-@dataclass
-class Table:
-    id: str = None
-    collectionId: str = None
-    name: str = None
-    qualifiedName: str = None
-    displayText: str = None
-    contact: List["Contact"] = None
-    term: List["Term"] = None
-    classification: List[str] = None
-    endorsement: List[str] = None
-    isIndexed: bool = None
-    objectType: str = None
-    entityType: str = None
-    assetType: List[str] = None
-    updateBy: str = None
-    updateTime: int = None
-    createBy: str = None
-    createTime: int = None
-
-    def as_dict(self):
-        return {k: v for k, v in self.__dict__.items() if v is not None}
-
-    def json_dumps(self, **kwargs) -> str:
-        return json.dumps(self.as_dict(), **kwargs)
-
-
-@dataclass
-class Contact:
-    contactType: str
-    id: str
-
-
-@dataclass
-class Term:
-    name: str
-    guid: str
-    glossaryName: str
 
 
 @dataclass
 class DataCatalog:
     key: str
     created_at: int
-    data: Dict[str, Any]
+    entities: List[AtlasEntityWithExtInfo]
 
-    @property
-    def tables(self) -> List[Table]:
-        return [
-            Table(**{k: v for k, v in obj.items() if not k.startswith("@")})
-            for obj in self.data["value"] if obj["objectType"] == "Tables"
-        ]
+    def as_dict(self) -> Dict[str, Any]:
+        return {
+            "key": self.key,
+            "created_at": self.created_at,
+            "data": [e.as_dict() for e in self.entities]
+        }
+
+    def get_bodies(self) -> List[Dict[str, Any]]:
+        return [_remove_nulls(e.as_dict()) for e in self.entities]
 
 
-def classify_with_object_type(data: DataCatalog) -> List[DataCatalog]:
-    object_types: Set = set()
-    for obj in data.data["value"]:
-        if "objectType" in obj:
-            object_types.add(obj["objectType"])
-
-    catalogs: Dict[str, DataCatalog] = {
-        object_type: DataCatalog(key=f"{data.key}_{object_type.replace(" ", "_")}", created_at=data.created_at,
-                                 data={"value": []})
-        for object_type in object_types
-    }
-
-    for obj in data.data["value"]:
-        if "objectType" in obj:
-            catalogs[obj["objectType"]].data["value"].append(obj)
-
-    return list(catalogs.values())
+def _remove_nulls(value):
+    if isinstance(value, dict):
+        return {k: _remove_nulls(v) for k, v in value.items() if v is not None}
+    elif isinstance(value, list):
+        return [_remove_nulls(item) for item in value if item is not None]
+    else:
+        return value

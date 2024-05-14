@@ -1,5 +1,4 @@
 import logging
-from datetime import datetime
 
 from azure.identity import ClientSecretCredential
 from azure.purview.datamap import DataMapClient
@@ -9,7 +8,7 @@ from pvsnapshot.repository import LocalSnapshotRepository
 from pvsnapshot.repository import RemoteRepository
 from pvsnapshot.repository import RestRemoteRepository
 from pvsnapshot.repository import SnapshotRepository
-from pvsnapshot.service import DumpService, ClassifyDumpService, RestoreService
+from pvsnapshot.service import DumpService, RestoreService
 
 logging.basicConfig(level=logging.INFO)
 
@@ -36,10 +35,10 @@ if __name__ == "__main__":
     dump: DumpService = DumpService(remote=remote, local=local, key=key)
     dump.run()
 
-    # example usage for classify process
-    classify: ClassifyDumpService = ClassifyDumpService(local=local, key=key)
-    classify.run()
-
+    # # example usage for classify process
+    # classify: ClassifyDumpService = ClassifyDumpService(local=local, key=key)
+    # classify.run()
+    #
     # example usage for restore process
     restore: RestoreService = RestoreService(remote=remote, local=local, key=key)
     restore.run()
