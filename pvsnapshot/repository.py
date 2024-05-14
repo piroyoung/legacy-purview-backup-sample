@@ -82,6 +82,7 @@ class RestRemoteRepository(RemoteRepository):
                 self.c.entity.create_or_update(body=body)
 
 
+
 @dataclass(frozen=True)
 class LocalSnapshotRepository(SnapshotRepository):
     dir: str

@@ -4,6 +4,7 @@ from typing import List
 from azure.purview.datamap.models import AtlasEntitiesWithExtInfo
 from azure.purview.datamap.models import AtlasEntityWithExtInfo
 
+
 __all__ = [
     "DataCatalog",
 ]
@@ -15,6 +16,7 @@ class DataCatalog:
     created_at: int
     body: AtlasEntitiesWithExtInfo
 
+
     @property
     def bodies(self) -> List[AtlasEntityWithExtInfo]:
         return [
@@ -24,6 +26,7 @@ class DataCatalog:
             )
             for entity in self.body.entities
         ]
+
 
 
 def _remove_nulls(value):
