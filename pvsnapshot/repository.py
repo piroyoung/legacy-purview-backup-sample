@@ -71,7 +71,15 @@ class RestRemoteRepository(RemoteRepository):
 
     # https://raw.githubusercontent.com/Azure/azure-sdk-for-python/main/sdk/purview/azure-purview-datamap/azure/purview/datamap/operations/_operations.py
     def put(self, data: DataCatalog):
-        self.c.entity.batch_create_or_update(body=data.body)
+        # self.c.entity.batch_create_or_update(body=data.body)
+        for body in data.bodies:
+            if self.has(body.entity.guid):
+                _logger.info(f"Updating entity: {body.entity.guid}")
+                self.c.entity.create_or_update(body=body)
+
+            else:
+                _logger.info(f"Creating entity: {body.entity.guid}")
+                self.c.entity.create_or_update(body=body)
 
 
 @dataclass(frozen=True)
@@ -85,7 +93,10 @@ class LocalSnapshotRepository(SnapshotRepository):
             dc: DataCatalog = DataCatalog(
                 key=obj["key"],
                 created_at=obj["created_at"],
-                body=obj["body"]
+                body=AtlasEntitiesWithExtInfo(
+                    entities=obj["body"]["entities"],
+                    referred_entities=obj["body"]["referredEntities"]
+                )
             )
             return dc
 
