@@ -4,10 +4,10 @@ from abc import ABCMeta
 from abc import abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
-from typing import List
+from typing import List, Any, Dict
 
 from azure.purview.datamap import DataMapClient
-from azure.purview.datamap.models import QueryResult
+from azure.purview.datamap.models import QueryResult, AtlasEntityWithExtInfo
 
 from pvsnapshot.model import DataCatalog
 
@@ -47,20 +47,26 @@ class SnapshotRepository(metaclass=ABCMeta):
 
 @dataclass(frozen=True)
 class RestRemoteRepository(RemoteRepository):
+    # https://azuresdkdocs.blob.core.windows.net/$web/python/azure-purview-datamap/1.0.0b1/index.html
     c: DataMapClient
 
     def get(self) -> DataCatalog:
         result: QueryResult = self.c.discovery.query(body={"keywords": "*"})
-        # _logger.info(f"Query result: {result}")
+        table_ids: List[str] = [entity["id"] for entity in result.value if entity["objectType"] == "Tables"]
+        response: AtlasEntityWithExtInfo = self.c.entity.get_by_ids(guid=table_ids)
 
         return DataCatalog(
             key=datetime.now().strftime("%Y%m%d%H%M%S"),
-            created_at=datetime.now(),
-            data=result.as_dict()
+            created_at=int(datetime.now().timestamp()),
+            entities=[AtlasEntityWithExtInfo(entity=entity) for entity in response.entities]
         )
 
+    # https://raw.githubusercontent.com/Azure/azure-sdk-for-python/main/sdk/purview/azure-purview-datamap/azure/purview/datamap/operations/_operations.py
     def put(self, data: DataCatalog):
-        pass
+        for body in data.bodies:
+            _logger.info(
+                f"Creating entity: {json.dumps(body, indent=4, ensure_ascii=False, sort_keys=True, default=str)}")
+            self.c.entity.create_or_update(body=body)
 
 
 @dataclass(frozen=True)
@@ -70,18 +76,27 @@ class LocalSnapshotRepository(SnapshotRepository):
     def get(self, key: str) -> DataCatalog:
         with open(f"{self.dir}/{key}.json", "r") as f:
             d: str = f.read()
-            return DataCatalog(**json.loads(d))
+            obj: Dict[str, Any] = json.loads(d)
+            dc: DataCatalog = DataCatalog(
+                key=obj["key"],
+                created_at=obj["created_at"],
+                entities=obj["entities"]
+            )
+            _logger.info(type(dc.entities))
+            return dc
 
     def put(self, data: DataCatalog):
         with open(f"{self.dir}/{data.key}.json", "w") as f:
             d: str = json.dumps(
                 {
                     "key": data.key,
-                    "created_at": str(data.created_at),
-                    "data": data.data
+                    "created_at": data.created_at,
+                    "entities": [e.as_dict() for e in data.entities]
                 },
                 indent=4,
-                ensure_ascii=False
+                ensure_ascii=False,
+                sort_keys=True,
+                default=str
             )
             f.write(d)
 
