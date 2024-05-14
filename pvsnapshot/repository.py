@@ -53,20 +53,20 @@ class RestRemoteRepository(RemoteRepository):
     def get(self) -> DataCatalog:
         result: QueryResult = self.c.discovery.query(body={"keywords": "*"})
         table_ids: List[str] = [entity["id"] for entity in result.value if entity["objectType"] == "Tables"]
-        response: dict = self.c.entity.get_by_ids(guid=table_ids)
+        response: AtlasEntityWithExtInfo = self.c.entity.get_by_ids(guid=table_ids)
 
         return DataCatalog(
             key=datetime.now().strftime("%Y%m%d%H%M%S"),
             created_at=int(datetime.now().timestamp()),
-            entities=[AtlasEntityWithExtInfo(entity=entity) for entity in response["entities"]]
+            entities=[AtlasEntityWithExtInfo(entity=entity) for entity in response.entities]
         )
 
     # https://raw.githubusercontent.com/Azure/azure-sdk-for-python/main/sdk/purview/azure-purview-datamap/azure/purview/datamap/operations/_operations.py
     def put(self, data: DataCatalog):
-        for body in data.get_bodies():
+        for body in data.bodies:
             _logger.info(
                 f"Creating entity: {json.dumps(body, indent=4, ensure_ascii=False, sort_keys=True, default=str)}")
-            self.c.entity.create_or_update(body=json.dumps(body))
+            self.c.entity.create_or_update(body=body)
 
 
 @dataclass(frozen=True)
@@ -80,7 +80,7 @@ class LocalSnapshotRepository(SnapshotRepository):
             dc: DataCatalog = DataCatalog(
                 key=obj["key"],
                 created_at=obj["created_at"],
-                entities=[AtlasEntityWithExtInfo(**v) for v in obj["data"]]
+                entities=obj["entities"]
             )
             _logger.info(type(dc.entities))
             return dc
@@ -88,7 +88,11 @@ class LocalSnapshotRepository(SnapshotRepository):
     def put(self, data: DataCatalog):
         with open(f"{self.dir}/{data.key}.json", "w") as f:
             d: str = json.dumps(
-                data.as_dict(),
+                {
+                    "key": data.key,
+                    "created_at": data.created_at,
+                    "entities": [e.as_dict() for e in data.entities]
+                },
                 indent=4,
                 ensure_ascii=False,
                 sort_keys=True,

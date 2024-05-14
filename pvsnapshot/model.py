@@ -15,15 +15,10 @@ class DataCatalog:
     created_at: int
     entities: List[AtlasEntityWithExtInfo]
 
-    def as_dict(self) -> Dict[str, Any]:
-        return {
-            "key": self.key,
-            "created_at": self.created_at,
-            "data": [e.as_dict() for e in self.entities]
-        }
+    @property
+    def bodies(self) -> List[Dict[str, Any]]:
+        return [_remove_nulls(entity) for entity in self.entities]
 
-    def get_bodies(self) -> List[Dict[str, Any]]:
-        return [_remove_nulls(e.as_dict()) for e in self.entities]
 
 
 def _remove_nulls(value):

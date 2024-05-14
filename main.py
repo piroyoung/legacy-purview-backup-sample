@@ -35,10 +35,6 @@ if __name__ == "__main__":
     dump: DumpService = DumpService(remote=remote, local=local, key=key)
     dump.run()
 
-    # # example usage for classify process
-    # classify: ClassifyDumpService = ClassifyDumpService(local=local, key=key)
-    # classify.run()
-    #
     # example usage for restore process
     restore: RestoreService = RestoreService(remote=remote, local=local, key=key)
     restore.run()
