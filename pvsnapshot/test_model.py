@@ -1,6 +1,8 @@
 import json
 from unittest import TestCase
 
+from azure.purview.datamap.models import SearchResultValue
+
 from pvsnapshot.model import DataCatalog
 
 
@@ -531,5 +533,5 @@ class TestDataCatalog(TestCase):
 
     def test_tables(self):
         for table in self.dc.tables:
-            assert table.as_dict()
             assert table.json_dumps(indent=4, ensure_ascii=False)
+            assert table.as_atlas()

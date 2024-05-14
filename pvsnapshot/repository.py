@@ -60,8 +60,13 @@ class RestRemoteRepository(RemoteRepository):
             data=result.as_dict()
         )
 
+    # https://raw.githubusercontent.com/Azure/azure-sdk-for-python/main/sdk/purview/azure-purview-datamap/azure/purview/datamap/operations/_operations.py
     def put(self, data: DataCatalog):
-        pass
+        for table in data.tables:
+            _logger.info(f"{table.json_dumps(indent=4, ensure_ascii=False)}")
+            self.c.entity.create_or_update(
+                body=table.as_atlas()
+            )
 
 
 @dataclass(frozen=True)

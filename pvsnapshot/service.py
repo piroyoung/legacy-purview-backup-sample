@@ -3,7 +3,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import List
 
-from pvsnapshot.model import DataCatalog, classify_with_object_type
+from pvsnapshot.model import DataCatalog
+from pvsnapshot.model import classify_with_object_type
 from pvsnapshot.repository import RemoteRepository
 from pvsnapshot.repository import SnapshotRepository
 
@@ -37,7 +38,7 @@ class RestoreService:
     local: SnapshotRepository
     key: str
 
-    def run(self, key: str) -> None:
+    def run(self) -> None:
         # take a snapshot of the current data for backup
         _logger.info("Taking a snapshot of the current data")
         backup_key: str = datetime.now().strftime("%Y%m%d%H%M%S")
@@ -48,9 +49,9 @@ class RestoreService:
 
         # restore the data from the local
         _logger.info("Restoring data from local")
-        data: DataCatalog = self.local.get(key)
+        data: DataCatalog = self.local.get(self.key)
         self.remote.put(data)
-        _logger.info(f"Data restored from local with key: {key}")
+        _logger.info(f"Data restored from local with key: {self.key}")
 
 
 @dataclass(frozen=True)

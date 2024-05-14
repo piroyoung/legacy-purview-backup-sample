@@ -9,7 +9,7 @@ from pvsnapshot.repository import LocalSnapshotRepository
 from pvsnapshot.repository import RemoteRepository
 from pvsnapshot.repository import RestRemoteRepository
 from pvsnapshot.repository import SnapshotRepository
-from pvsnapshot.service import DumpService, ClassifyDumpService
+from pvsnapshot.service import DumpService, ClassifyDumpService, RestoreService
 
 logging.basicConfig(level=logging.INFO)
 
@@ -29,8 +29,17 @@ if __name__ == "__main__":
     remote: RemoteRepository = RestRemoteRepository(c=client)
     local: SnapshotRepository = LocalSnapshotRepository(dir="snapshots")
 
-    key: str = datetime.now().strftime("%Y%m%d%H%M%S")
+    # key: str = datetime.now().strftime("%Y%m%d%H%M%S")
+    key: str = "test"
+
+    # example usage for dump process
     dump: DumpService = DumpService(remote=remote, local=local, key=key)
-    classify: ClassifyDumpService = ClassifyDumpService(local=local, key=key)
     dump.run()
+
+    # example usage for classify process
+    classify: ClassifyDumpService = ClassifyDumpService(local=local, key=key)
     classify.run()
+
+    # example usage for restore process
+    restore: RestoreService = RestoreService(remote=remote, local=local, key=key)
+    restore.run()
