@@ -8,7 +8,8 @@ from pvsnapshot.repository import LocalSnapshotRepository
 from pvsnapshot.repository import RemoteRepository
 from pvsnapshot.repository import RestRemoteRepository
 from pvsnapshot.repository import SnapshotRepository
-from pvsnapshot.service import RestoreService
+from pvsnapshot.service import RestoreService, DumpService
+
 
 logging.basicConfig(level=logging.INFO)
 
