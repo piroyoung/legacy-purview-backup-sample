@@ -47,6 +47,7 @@ class SnapshotRepository(metaclass=ABCMeta):
 
 @dataclass(frozen=True)
 class RestRemoteRepository(RemoteRepository):
+    # https://azuresdkdocs.blob.core.windows.net/$web/python/azure-purview-datamap/1.0.0b1/index.html
     c: DataMapClient
 
     def get(self) -> DataCatalog:
