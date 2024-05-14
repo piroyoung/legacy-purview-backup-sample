@@ -1,8 +1,6 @@
 from dataclasses import dataclass
-from typing import Any, List
-from typing import Dict
 
-from azure.purview.datamap.models import AtlasEntityWithExtInfo
+from azure.purview.datamap.models import AtlasEntitiesWithExtInfo
 
 __all__ = [
     "DataCatalog",
@@ -13,11 +11,7 @@ __all__ = [
 class DataCatalog:
     key: str
     created_at: int
-    entities: List[AtlasEntityWithExtInfo]
-
-    @property
-    def bodies(self) -> List[Dict[str, Any]]:
-        return [_remove_nulls(entity) for entity in self.entities]
+    body: AtlasEntitiesWithExtInfo
 
 
 

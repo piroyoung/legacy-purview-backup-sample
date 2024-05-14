@@ -7,7 +7,7 @@ from datetime import datetime
 from typing import List, Any, Dict
 
 from azure.purview.datamap import DataMapClient
-from azure.purview.datamap.models import QueryResult, AtlasEntityWithExtInfo
+from azure.purview.datamap.models import QueryResult, AtlasEntitiesWithExtInfo
 
 from pvsnapshot.model import DataCatalog
 
@@ -53,20 +53,17 @@ class RestRemoteRepository(RemoteRepository):
     def get(self) -> DataCatalog:
         result: QueryResult = self.c.discovery.query(body={"keywords": "*"})
         table_ids: List[str] = [entity["id"] for entity in result.value if entity["objectType"] == "Tables"]
-        response: AtlasEntityWithExtInfo = self.c.entity.get_by_ids(guid=table_ids)
+        response: AtlasEntitiesWithExtInfo = self.c.entity.get_by_ids(guid=table_ids)
 
         return DataCatalog(
             key=datetime.now().strftime("%Y%m%d%H%M%S"),
             created_at=int(datetime.now().timestamp()),
-            entities=[AtlasEntityWithExtInfo(entity=entity) for entity in response.entities]
+            body=response
         )
 
     # https://raw.githubusercontent.com/Azure/azure-sdk-for-python/main/sdk/purview/azure-purview-datamap/azure/purview/datamap/operations/_operations.py
     def put(self, data: DataCatalog):
-        for body in data.bodies:
-            _logger.info(
-                f"Creating entity: {json.dumps(body, indent=4, ensure_ascii=False, sort_keys=True, default=str)}")
-            self.c.entity.create_or_update(body=body)
+        self.c.entity.batch_create_or_update(body=data.body)
 
 
 @dataclass(frozen=True)
@@ -80,9 +77,8 @@ class LocalSnapshotRepository(SnapshotRepository):
             dc: DataCatalog = DataCatalog(
                 key=obj["key"],
                 created_at=obj["created_at"],
-                entities=obj["entities"]
+                body=obj["body"]
             )
-            _logger.info(type(dc.entities))
             return dc
 
     def put(self, data: DataCatalog):
@@ -91,7 +87,7 @@ class LocalSnapshotRepository(SnapshotRepository):
                 {
                     "key": data.key,
                     "created_at": data.created_at,
-                    "entities": [e.as_dict() for e in data.entities]
+                    "body": data.body.as_dict()
                 },
                 indent=4,
                 ensure_ascii=False,
