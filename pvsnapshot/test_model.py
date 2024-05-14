@@ -530,4 +530,6 @@ class TestDataCatalog(TestCase):
     dc: DataCatalog = DataCatalog(**json.loads(dc_json))
 
     def test_tables(self):
-        assert self.dc.tables
+        for table in self.dc.tables:
+            assert table.as_dict()
+            assert table.json_dumps(indent=4, ensure_ascii=False)

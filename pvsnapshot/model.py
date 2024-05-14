@@ -1,3 +1,4 @@
+import json
 from dataclasses import dataclass
 from typing import Any, List, Set
 from typing import Dict
@@ -27,6 +28,12 @@ class Table:
     updateTime: int = None
     createBy: str = None
     createTime: int = None
+
+    def as_dict(self):
+        return {k: v for k, v in self.__dict__.items() if v is not None}
+
+    def json_dumps(self, **kwargs) -> str:
+        return json.dumps(self.as_dict(), **kwargs)
 
 
 @dataclass
