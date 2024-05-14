@@ -8,7 +8,7 @@ from pvsnapshot.repository import LocalSnapshotRepository
 from pvsnapshot.repository import RemoteRepository
 from pvsnapshot.repository import RestRemoteRepository
 from pvsnapshot.repository import SnapshotRepository
-from pvsnapshot.service import RestoreService
+from pvsnapshot.service import RestoreService, DumpService
 
 logging.basicConfig(level=logging.INFO)
 
@@ -32,8 +32,8 @@ if __name__ == "__main__":
     key: str = "test"
 
     # example usage for dump process
-    # dump: DumpService = DumpService(remote=remote, local=local, key=key)
-    # dump.run()
+    dump: DumpService = DumpService(remote=remote, local=local, key=key)
+    dump.run()
 
     # example usage for restore process
     restore: RestoreService = RestoreService(remote=remote, local=local, key=key)

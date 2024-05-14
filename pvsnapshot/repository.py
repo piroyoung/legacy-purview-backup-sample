@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import List, Any, Dict
 
+from azure.core.exceptions import ResourceNotFoundError
 from azure.purview.datamap import DataMapClient
 from azure.purview.datamap.models import QueryResult, AtlasEntitiesWithExtInfo
 
@@ -49,6 +50,13 @@ class SnapshotRepository(metaclass=ABCMeta):
 class RestRemoteRepository(RemoteRepository):
     # https://azuresdkdocs.blob.core.windows.net/$web/python/azure-purview-datamap/1.0.0b1/index.html
     c: DataMapClient
+
+    def has(self, key: str) -> bool:
+        try:
+            self.c.entity.get_by_ids(guid=[key])
+            return True
+        except ResourceNotFoundError:
+            return False
 
     def get(self) -> DataCatalog:
         result: QueryResult = self.c.discovery.query(body={"keywords": "*"})
