@@ -11,7 +11,7 @@ __all__ = [
 class DataCatalog:
     key: str
     created_at: int
-    data: AtlasEntitiesWithExtInfo
+    body: AtlasEntitiesWithExtInfo
 
 
 

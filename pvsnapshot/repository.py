@@ -58,12 +58,12 @@ class RestRemoteRepository(RemoteRepository):
         return DataCatalog(
             key=datetime.now().strftime("%Y%m%d%H%M%S"),
             created_at=int(datetime.now().timestamp()),
-            data=response
+            body=response
         )
 
     # https://raw.githubusercontent.com/Azure/azure-sdk-for-python/main/sdk/purview/azure-purview-datamap/azure/purview/datamap/operations/_operations.py
     def put(self, data: DataCatalog):
-        self.c.entity.batch_create_or_update(body=data.data)
+        self.c.entity.batch_create_or_update(body=data.body)
 
 
 @dataclass(frozen=True)
@@ -77,7 +77,7 @@ class LocalSnapshotRepository(SnapshotRepository):
             dc: DataCatalog = DataCatalog(
                 key=obj["key"],
                 created_at=obj["created_at"],
-                data=obj["data"]
+                body=obj["body"]
             )
             return dc
 
@@ -87,7 +87,7 @@ class LocalSnapshotRepository(SnapshotRepository):
                 {
                     "key": data.key,
                     "created_at": data.created_at,
-                    "data": data.data.as_dict()
+                    "body": data.body.as_dict()
                 },
                 indent=4,
                 ensure_ascii=False,
