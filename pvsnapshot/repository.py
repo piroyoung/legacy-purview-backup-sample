@@ -55,7 +55,7 @@ class RestRemoteRepository(RemoteRepository):
 
         return DataCatalog(
             key=datetime.now().strftime("%Y%m%d%H%M%S"),
-            created_at=datetime.now(),
+            created_at=int(datetime.now().timestamp()),
             data=result.as_dict()
         )
 
