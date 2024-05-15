@@ -2,6 +2,8 @@ import os
 
 __all__ = ["Environments"]
 
+import sys
+
 
 class Environments:
     CLIENT_ID: str = os.getenv("CLIENT_ID")
@@ -21,3 +23,13 @@ class Environments:
 
     def __str__(self):
         return ""
+
+
+class Arguments:
+    COMMAND: str = sys.argv[1]
+    TARGET: str = sys.argv[2]
+
+
+assert Arguments.COMMAND in ["dump", "dump"], "1st argument must be dump or restore"
+assert Arguments.TARGET, "key of snapshot is required"
+
