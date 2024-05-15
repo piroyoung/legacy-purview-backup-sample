@@ -1,3 +1,4 @@
+import copy
 import json
 import logging
 from abc import ABCMeta
@@ -8,7 +9,9 @@ from typing import List, Any, Dict
 
 from azure.core.exceptions import ResourceNotFoundError
 from azure.purview.datamap import DataMapClient
-from azure.purview.datamap.models import QueryResult, AtlasEntitiesWithExtInfo
+from azure.purview.datamap.models import AtlasEntitiesWithExtInfo
+from azure.purview.datamap.models import AtlasEntity
+from azure.purview.datamap.models import QueryResult
 
 from pvsnapshot.model import DataCatalog
 
@@ -71,16 +74,45 @@ class RestRemoteRepository(RemoteRepository):
 
     # https://raw.githubusercontent.com/Azure/azure-sdk-for-python/main/sdk/purview/azure-purview-datamap/azure/purview/datamap/operations/_operations.py
     def put(self, data: DataCatalog):
-        # self.c.entity.batch_create_or_update(body=data.body)
         for body in data.bodies:
-            if self.has(body.entity.guid):
-                _logger.info(f"Updating entity: {body.entity.guid}")
-                self.c.entity.create_or_update(body=body)
+            if self.has(body.entities[0].guid):
+                _logger.info(f"Updating entity: {body.entities[0].attributes['name']}")
+                self.c.entity.batch_create_or_update(body=body)
 
             else:
-                _logger.info(f"Creating entity: {body.entity.guid}")
-                self.c.entity.create_or_update(body=body)
+                # Example: https://learn.microsoft.com/en-us/purview/create-relationships
+                _logger.info(f"Creating entity: {body.entities[0].attributes['name']}")
+                request_body: AtlasEntitiesWithExtInfo = AtlasEntitiesWithExtInfo(entities=[], referred_entities={})
 
+                table_entity: AtlasEntity = copy.deepcopy(body.entities[0])
+                table_entity.guid = -1
+                table_entity.created_by = None
+                table_entity.create_time = None
+                table_entity.updated_by = None
+                table_entity.update_time = None
+                table_entity.version = None
+                table_entity.last_modified_t_s = None
+                table_entity["relationshipAttributes"]["columns"] = []
+                guid: str = table_entity["relationshipAttributes"]["dbSchema"]["guid"]
+                table_entity["relationshipAttributes"]["dbSchema"] = {"guid": guid}
+
+                for i, c in enumerate(body.entities[0].relationship_attributes["columns"]):
+                    column_entity: AtlasEntity = copy.deepcopy(body.referred_entities[c["guid"]])
+                    column_entity.guid = -10 - i
+                    table_entity["relationshipAttributes"]["columns"].append({"guid": column_entity.guid})
+                    column_entity.created_by = None
+                    column_entity.create_time = None
+                    column_entity.updated_by = None
+                    column_entity.update_time = None
+                    column_entity.version = None
+                    column_entity.last_modified_t_s = None
+                    column_entity["relationshipAttributes"]["table"] = {"guid": table_entity.guid}
+                    request_body.entities.append(column_entity)
+
+                request_body.entities.append(table_entity)
+                _logger.info(json.dumps(request_body.as_dict(), indent=2, ensure_ascii=False))
+
+                self.c.entity.batch_create_or_update(body=request_body)
 
 
 @dataclass(frozen=True)

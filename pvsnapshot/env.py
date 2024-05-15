@@ -2,11 +2,13 @@ import os
 
 __all__ = ["Environments"]
 
+
 class Environments:
     CLIENT_ID: str = os.getenv("CLIENT_ID")
     CLIENT_SECRET: str = os.getenv("CLIENT_SECRET")
     TENANT_ID: str = os.getenv("TENANT_ID")
     PURVIEW_ENDPOINT: str = os.getenv("PURVIEW_ENDPOINT")
+
     # PURVIEW_SCAN_ENDPOINT: str = os.getenv("PURVIEW_SCAN_ENDPOINT")
 
     @staticmethod
