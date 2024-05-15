@@ -62,7 +62,13 @@ class DataMapAPITableEntityRepository(TableEntityRepository):
             return False
 
     def get(self) -> DataCatalog:
-        result: QueryResult = self.c.discovery.query(body={"keywords": "*"})
+        request_body: Dict[str, Any] = {
+            "keywords": "*",
+            "filter": {
+                "objectType": "Tables",
+            }
+        }
+        result: QueryResult = self.c.discovery.query(body=request_body)
         table_ids: List[str] = [entity["id"] for entity in result.value if entity["objectType"] == "Tables"]
         response: AtlasEntitiesWithExtInfo = self.c.entity.get_by_ids(guid=table_ids)
 
