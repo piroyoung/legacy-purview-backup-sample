@@ -68,8 +68,12 @@ class DataMapAPITableEntityRepository(TableEntityRepository):
                 "objectType": "Tables",
             }
         }
+
+        # get all guid of tables
         result: QueryResult = self.c.discovery.query(body=request_body)
         table_ids: List[str] = [entity["id"] for entity in result.value if entity["objectType"] == "Tables"]
+
+        # get all entities of tables
         response: AtlasEntitiesWithExtInfo = self.c.entity.get_by_ids(guid=table_ids)
 
         return DataCatalog(
