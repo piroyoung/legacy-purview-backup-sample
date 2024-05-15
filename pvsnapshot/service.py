@@ -3,8 +3,8 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from pvsnapshot.model import DataCatalog
-from pvsnapshot.repository import RemoteRepository
 from pvsnapshot.repository import SnapshotRepository
+from pvsnapshot.repository import TableEntityRepository
 
 __all__ = [
     "DumpService",
@@ -16,7 +16,7 @@ _logger: logging.Logger = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
 class DumpService:
-    remote: RemoteRepository
+    remote: TableEntityRepository
     local: SnapshotRepository
     key: str
 
@@ -31,7 +31,7 @@ class DumpService:
 
 @dataclass(frozen=True)
 class RestoreService:
-    remote: RemoteRepository
+    remote: TableEntityRepository
     local: SnapshotRepository
     key: str
 

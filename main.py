@@ -5,8 +5,8 @@ from azure.purview.datamap import DataMapClient
 
 from pvsnapshot.env import Environments
 from pvsnapshot.repository import LocalSnapshotRepository
-from pvsnapshot.repository import RemoteRepository
-from pvsnapshot.repository import RestRemoteRepository
+from pvsnapshot.repository import TableEntityRepository
+from pvsnapshot.repository import DataMapAPITableEntityRepository
 from pvsnapshot.repository import SnapshotRepository
 from pvsnapshot.service import RestoreService
 from pvsnapshot.service import DumpService
@@ -27,7 +27,7 @@ if __name__ == "__main__":
         credential=credentials
     )
 
-    remote: RemoteRepository = RestRemoteRepository(c=client)
+    remote: TableEntityRepository = DataMapAPITableEntityRepository(c=client)
     local: SnapshotRepository = LocalSnapshotRepository(dir="snapshots")
 
     # key: str = datetime.now().strftime("%Y%m%d%H%M%S")
