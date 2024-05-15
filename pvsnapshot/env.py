@@ -1,8 +1,7 @@
 import os
+import sys
 
 __all__ = ["Environments"]
-
-import sys
 
 
 class Environments:
@@ -27,9 +26,8 @@ class Environments:
 
 class Arguments:
     COMMAND: str = sys.argv[1]
-    TARGET: str = sys.argv[2]
+    KEY: str = sys.argv[2]
 
 
-assert Arguments.COMMAND in ["dump", "dump"], "1st argument must be dump or restore"
-assert Arguments.TARGET, "key of snapshot is required"
-
+assert Arguments.COMMAND in ["dump", "restore"], "1st argument must be dump or restore"
+assert Arguments.KEY, "key of snapshot is required"
