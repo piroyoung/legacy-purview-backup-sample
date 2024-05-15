@@ -86,8 +86,16 @@ class DataMapAPITableEntityRepository(TableEntityRepository):
 
                 table_entity: AtlasEntity = copy.deepcopy(body.entities[0])
 
-                # reset invalid guid
+                # reset invalid guid and set a new pseudo guid
                 table_entity.guid = -1
+
+                # delete history attributes
+                table_entity.created_by = None
+                table_entity.create_time = None
+                table_entity.updated_by = None
+                table_entity.update_time = None
+                table_entity.version = None
+                table_entity.last_modified_t_s = None
 
                 # reset relationship between table to columns
                 table_entity["relationshipAttributes"]["columns"] = []
@@ -99,11 +107,21 @@ class DataMapAPITableEntityRepository(TableEntityRepository):
                 for i, c in enumerate(body.entities[0].relationship_attributes["columns"]):
                     column_entity: AtlasEntity = copy.deepcopy(body.referred_entities[c["guid"]])
 
-                    # set a relationship between table to column
+                    # delete history attributes
+                    column_entity.created_by = None
+                    column_entity.create_time = None
+                    column_entity.updated_by = None
+                    column_entity.update_time = None
+                    column_entity.version = None
+                    column_entity.last_modified_t_s = None
+
+                    # remove invalid guid and set a new pseudo guid
                     column_entity.guid = -10 - i
+
+                    # set a relationship table to column
                     table_entity["relationshipAttributes"]["columns"].append({"guid": column_entity.guid})
 
-                    # set a relationship between column to table
+                    # set a relationship column to table
                     column_entity["relationshipAttributes"]["table"] = {"guid": table_entity.guid}
 
                     # add a column entity to the request body
