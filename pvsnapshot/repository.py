@@ -74,11 +74,18 @@ class RestRemoteRepository(RemoteRepository):
         # self.c.entity.batch_create_or_update(body=data.body)
         for body in data.bodies:
             if self.has(body.entity.guid):
-                _logger.info(f"Updating entity: {body.entity.guid}")
+                _logger.info(f"Updating entity: {body.entity.attributes['name']}")
                 self.c.entity.create_or_update(body=body)
 
             else:
-                _logger.info(f"Creating entity: {body.entity.guid}")
+                _logger.info(f"Creating entity: {body.entity.attributes['name']}")
+                del body.entity.guid
+                del body.entity.created_by
+                del body.entity.create_time
+                del body.entity.updated_by
+                del body.entity.update_time
+                del body.entity.version
+                del body.entity.last_modified_t_s
                 self.c.entity.create_or_update(body=body)
 
 
