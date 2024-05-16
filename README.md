@@ -8,7 +8,7 @@ This example application allows us to dump all table metadata into a local JSON 
 * Create a service principal for this app and assign the appropriate roles as shown below.
   * https://learn.microsoft.com/en-us/purview/tutorial-using-python-sdk
 
-TL;DR -> just check Makefile
+TL;DR -> just check [Makefile](https://github.com/piroyoung/purview-snapshot/blob/main/Makefile)
 
 ## Environment Variable
 ```shell
@@ -19,7 +19,7 @@ TL;DR -> just check Makefile
   export HOST_VOLUME=/your/local/path/to/save/snapshot
 ```
 
-# Dump to `example.json`
+## Dump to `example.json`
 ```shell
 docker run -it --rm \
     -e CLIENT_ID=$(CLIENT_ID) \
@@ -31,7 +31,7 @@ docker run -it --rm \
     ghcr.io/piroyoung/purview-snapshot:latest dump example
 ```
 
-# Restore from `example.json`
+## Restore from `example.json`
 ```shell
 docker run -it --rm \
     -e CLIENT_ID=$(CLIENT_ID) \
