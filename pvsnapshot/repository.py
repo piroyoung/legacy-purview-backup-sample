@@ -16,16 +16,16 @@ from azure.purview.datamap.models import QueryResult
 from pvsnapshot.model import DataCatalog
 
 __all__ = [
-    "RemoteRepository",
+    "TableEntityRepository",
     "SnapshotRepository",
-    "RestRemoteRepository",
+    "DataMapAPITableEntityRepository",
     "LocalSnapshotRepository"
 ]
 
 _logger: logging.Logger = logging.getLogger(__name__)
 
 
-class RemoteRepository(metaclass=ABCMeta):
+class TableEntityRepository(metaclass=ABCMeta):
     @abstractmethod
     def get(self) -> DataCatalog:
         pass
@@ -50,7 +50,7 @@ class SnapshotRepository(metaclass=ABCMeta):
 
 
 @dataclass(frozen=True)
-class RestRemoteRepository(RemoteRepository):
+class DataMapAPITableEntityRepository(TableEntityRepository):
     # https://azuresdkdocs.blob.core.windows.net/$web/python/azure-purview-datamap/1.0.0b1/index.html
     c: DataMapClient
 
@@ -62,8 +62,18 @@ class RestRemoteRepository(RemoteRepository):
             return False
 
     def get(self) -> DataCatalog:
-        result: QueryResult = self.c.discovery.query(body={"keywords": "*"})
+        request_body: Dict[str, Any] = {
+            "keywords": "*",
+            "filter": {
+                "objectType": "Tables",
+            }
+        }
+
+        # get all guid of tables
+        result: QueryResult = self.c.discovery.query(body=request_body)
         table_ids: List[str] = [entity["id"] for entity in result.value if entity["objectType"] == "Tables"]
+
+        # get all entities of tables
         response: AtlasEntitiesWithExtInfo = self.c.entity.get_by_ids(guid=table_ids)
 
         return DataCatalog(
@@ -85,30 +95,49 @@ class RestRemoteRepository(RemoteRepository):
                 request_body: AtlasEntitiesWithExtInfo = AtlasEntitiesWithExtInfo(entities=[], referred_entities={})
 
                 table_entity: AtlasEntity = copy.deepcopy(body.entities[0])
+
+                # reset invalid guid and set a new pseudo guid
                 table_entity.guid = -1
+
+                # delete history attributes
                 table_entity.created_by = None
                 table_entity.create_time = None
                 table_entity.updated_by = None
                 table_entity.update_time = None
                 table_entity.version = None
                 table_entity.last_modified_t_s = None
+
+                # reset relationship between table to columns
                 table_entity["relationshipAttributes"]["columns"] = []
-                guid: str = table_entity["relationshipAttributes"]["dbSchema"]["guid"]
-                table_entity["relationshipAttributes"]["dbSchema"] = {"guid": guid}
+
+                # reset relationship between table to dbSchema
+                db_schema_guid: str = table_entity["relationshipAttributes"]["dbSchema"]["guid"]
+                table_entity["relationshipAttributes"]["dbSchema"] = {"guid": db_schema_guid}
 
                 for i, c in enumerate(body.entities[0].relationship_attributes["columns"]):
                     column_entity: AtlasEntity = copy.deepcopy(body.referred_entities[c["guid"]])
-                    column_entity.guid = -10 - i
-                    table_entity["relationshipAttributes"]["columns"].append({"guid": column_entity.guid})
+
+                    # delete history attributes
                     column_entity.created_by = None
                     column_entity.create_time = None
                     column_entity.updated_by = None
                     column_entity.update_time = None
                     column_entity.version = None
                     column_entity.last_modified_t_s = None
+
+                    # remove invalid guid and set a new pseudo guid
+                    column_entity.guid = -10 - i
+
+                    # set a relationship table to column
+                    table_entity["relationshipAttributes"]["columns"].append({"guid": column_entity.guid})
+
+                    # set a relationship column to table
                     column_entity["relationshipAttributes"]["table"] = {"guid": table_entity.guid}
+
+                    # add a column entity to the request body
                     request_body.entities.append(column_entity)
 
+                # add a table entity to the request body
                 request_body.entities.append(table_entity)
                 _logger.info(json.dumps(request_body.as_dict(), indent=2, ensure_ascii=False))
 
@@ -141,7 +170,7 @@ class LocalSnapshotRepository(SnapshotRepository):
                     "created_at": data.created_at,
                     "body": data.body.as_dict()
                 },
-                indent=4,
+                indent=2,
                 ensure_ascii=False,
                 sort_keys=True,
                 default=str

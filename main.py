@@ -3,14 +3,14 @@ import logging
 from azure.identity import ClientSecretCredential
 from azure.purview.datamap import DataMapClient
 
+from pvsnapshot.env import Arguments
 from pvsnapshot.env import Environments
+from pvsnapshot.repository import DataMapAPITableEntityRepository
 from pvsnapshot.repository import LocalSnapshotRepository
-from pvsnapshot.repository import RemoteRepository
-from pvsnapshot.repository import RestRemoteRepository
 from pvsnapshot.repository import SnapshotRepository
-from pvsnapshot.service import RestoreService
+from pvsnapshot.repository import TableEntityRepository
 from pvsnapshot.service import DumpService
-
+from pvsnapshot.service import RestoreService
 
 logging.basicConfig(level=logging.INFO)
 
@@ -27,16 +27,14 @@ if __name__ == "__main__":
         credential=credentials
     )
 
-    remote: RemoteRepository = RestRemoteRepository(c=client)
+    remote: TableEntityRepository = DataMapAPITableEntityRepository(c=client)
     local: SnapshotRepository = LocalSnapshotRepository(dir="snapshots")
 
-    # key: str = datetime.now().strftime("%Y%m%d%H%M%S")
-    key: str = "test"
+    match Arguments.COMMAND:
+        case "dump":
+            dump: DumpService = DumpService(remote=remote, local=local, key=Arguments.KEY)
+            dump.run()
 
-    # example usage for dump process
-    dump: DumpService = DumpService(remote=remote, local=local, key=key)
-    # dump.run()
-
-    # example usage for restore process
-    restore: RestoreService = RestoreService(remote=remote, local=local, key=key)
-    restore.run()
+        case "restore":
+            restore: RestoreService = RestoreService(remote=remote, local=local, key=Arguments.KEY)
+            restore.run()

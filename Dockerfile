@@ -18,7 +18,5 @@ ENV CLIENT_SECRET="client_secret"
 ENV TENANT_ID="tenant_id"
 ENV PURVIEW_ENDPOINT="purview_endpoint"
 
-
 WORKDIR /local/pvsnapshot
-CMD ["poetry", "run", "python", "main.py"]
-
+ENTRYPOINT ["poetry", "run", "python", "main.py"]
